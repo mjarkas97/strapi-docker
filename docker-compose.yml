@@ -1,0 +1,53 @@
+services:
+  app:
+    container_name: strapi-app
+    build: .
+    image: strapi:5.10
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: strapi-db
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_PORT: ${DATABASE_PORT}
+      APP_KEYS: ${APP_KEYS}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - strapi-app:/srv/app
+    ports:
+      - '1337:1337'
+    networks:
+      - strapi
+    depends_on:
+      - db
+      
+  db:
+    container_name: strapi-db 
+    restart: unless-stopped
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - strapi-db:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    networks:
+      - strapi
+
+networks:
+  strapi:
+    name: strapi
+    driver: bridge
+
+volumes:
+  strapi-app:
+    name: strapi-app
+  strapi-db:
+    name: strapi-db
